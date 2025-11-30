@@ -53,33 +53,3 @@ if __name__ == "__main__":
     for i, result in enumerate(results, 1):
         print(f"result {i}")
         print(result[:200] + "\n")
-
-# texts = ["the cat sat on the mat", "a feline rested on the rug", "python is a programming language"]
-
-# emb = model.encode(texts)
-# emb = np.array(emb).astype("float32")
-
-# print(f"emb shape: {emb.shape}")
-
-# dimension = 384
-# index = faiss.IndexFlatL2(dimension)
-
-# index.add(emb)
-# print(f"stored {index.ntotal} vectors in database")
-
-# query = "kitten on carpet"
-# query_embedding = model.encode([query])
-# query_embedding = np.array(query_embedding).astype("float32")
-
-# print(f"query embedding shape : {query_embedding.shape}")
-
-# k = 2
-# distances, indices = index.search(query_embedding, k)
-
-# print(f"distances : {distances}")
-# print(f"indices : {indices}")
-
-# print(f"query : {query}")
-# print("most similar texts : ")
-# for i, idx in enumerate(indices[0]):
-#     print(f"{i+1}. {texts[idx]} (distance : {distances[0][i]:.2f})")
