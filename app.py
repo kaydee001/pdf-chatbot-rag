@@ -19,6 +19,7 @@ if "qa_system" not in st.session_state:
     api_key = os.getenv("GROQ_API_KEY")
     st.session_state.qa_system = QASystem(api_key)
     st.session_state.document_loaded = False
+    st.session_state.chat_history = []
 
 uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
@@ -36,19 +37,40 @@ if uploaded_file and st.button("Process document"):
     st.success("Document loaded ✅")
 
 if st.session_state.document_loaded:
-    question = st.text_input("Ask a question about the document : ")
+    
+    for message in st.session_state.chat_history:
+        if message["role"] == "user":
+            st.write(f"You : {message["content"]}")
+        else:
+            st.write(f"Bot : {message["content"]}")
+            if "sources" in message:
+                with st.expander("Sources"):
+                    for i, source in enumerate(message["sources"], 1):
+                        st.write(f"Source {i}")
+                        st.write(source)
+        st.write("---")
+
+    question = st.text_input("Ask a question about the document : ", key="question_input")
 
     if question:
         with st.spinner("Thinking ... "):
-            result = st.session_state.qa_system.ask(question)
+            result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
     
-        st.write("Answer : ")
-        st.write(result["answer"])
+        st.session_state.chat_history.append(
+            {
+                "role": "user", 
+                "content": question
+             }
+        )
+        st.session_state.chat_history.append(
+            {
+                "role": "assistant", 
+                "content": result["answer"], 
+                "sources": result["sources"]
+             }
+        )
 
-        st.write("Sources : ")
-        for i, source in enumerate(result["sources"], 1):
-            with st.expander(f"Source {i}"):
-                st.write(source)
+        st.rerun()
 
 else:
     st.info("Please upload and process a document first")

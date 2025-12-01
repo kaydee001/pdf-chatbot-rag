@@ -18,26 +18,60 @@ class QASystem:
         self.vector_store.add_texts(chunks)
         # print(f"document loaded : {len(chunks)} chunks stored")
 
-    def ask(self, question, k=3):
+    def ask(self, question, k=3, chat_history=None):
+        if chat_history is None:
+            chat_history = []
+
         relevant_chunks = self.vector_store.search(question, k=k)
         context = "\n\n".join(relevant_chunks)
-        prompt = prompt = f"""based on the following context from a document, answer the question.
-                            context:
-                                {context}
 
-                            question : {question}
+        messages = []        
+        system_message = f"""you are a helpful assistant answering questions about a doc;
+        use the following context to answer questions :
+        {context}
+        if the answer is not the context, say so"""
 
-                            answer : """
+        messages.append(
+            {
+                "role": "system", 
+                "content": system_message
+            }
+        )
+
+        for msg in chat_history:
+            messages.append(
+                {
+                    "role": msg["role"], 
+                    "context": msg["content"]
+                }
+            )
+
+        messages.append(
+            {
+                "role": "user", 
+                "content": question
+            }
+        )
+            
+        # prompt = prompt = f"""based on the following context from a document, answer the question.
+        #                     context:
+        #                         {context}
+
+        #                     question : {question}
+
+        #                     answer : """
         
         response = self.client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            messages=messages
         )
 
         answer = response.choices[0].message.content
-        return {"answer": answer, "sources": relevant_chunks}
+
+        return {
+            "answer": answer, 
+            "sources": relevant_chunks
+        }
 
 if __name__ == "__main__":
     api_key = os.getenv("GROQ_API_KEY")
