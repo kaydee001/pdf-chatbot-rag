@@ -11,6 +11,7 @@ class VectorStore:
 
     def add_texts(self, texts):
         self.texts = texts
+        self.index = faiss.IndexFlatL2(self.dimension)
 
         embeddings = self.model.encode(texts)
         embeddings = np.array(embeddings).astype("float32")
@@ -31,8 +32,8 @@ class VectorStore:
         return results
     
 if __name__ == "__main__":
-    from pdf_loader import load_pdf
-    from text_chunker import chunk_text
+    from src.pdf_loader import load_pdf
+    from src.text_chunker import chunk_text
 
     pdf_path = "data/sample_pdfs/test.pdf"
     text = load_pdf(pdf_path)

@@ -1,8 +1,8 @@
 import os
 from groq import Groq
-from pdf_loader import load_pdf
-from text_chunker import chunk_text
-from embeddings import VectorStore
+from src.pdf_loader import load_pdf
+from src.text_chunker import chunk_text
+from src.embeddings import VectorStore
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,7 +16,7 @@ class QASystem:
         text = load_pdf(pdf_path)
         chunks = chunk_text(text, chunk_size=1000, overlap=200)
         self.vector_store.add_texts(chunks)
-        print(f"document loaded : {len(chunks)} chunks stored")
+        # print(f"document loaded : {len(chunks)} chunks stored")
 
     def ask(self, question, k=3):
         relevant_chunks = self.vector_store.search(question, k=k)
@@ -37,9 +37,7 @@ class QASystem:
         )
 
         answer = response.choices[0].message.content
-        return answer
-
-# client = Groq(api_key="gsk_**")
+        return {"answer": answer, "sources": relevant_chunks}
 
 if __name__ == "__main__":
     api_key = os.getenv("GROQ_API_KEY")
