@@ -4,25 +4,19 @@ def load_pdf(file_path):
     all_text = ""
     try:
         pdf = PdfReader(file_path)
-
-        if len(pdf.pages) == 0:
-            raise ValueError("PDF has no pages")
-        
         for page in pdf.pages:
             page_text = page.extract_text()
-            if page_text:
-                all_text += page_text
-        
-        if not all_text.strip():
-            raise ValueError("No text could be extracted from PDF")
+            all_text += page_text
         
         return all_text
         
     except FileNotFoundError:
-        raise FileNotFoundError(f"File not found : {file_path}")
+        print(f"file not found at {file_path}")
+        return ""
     
     except Exception as e:
-        raise Exception(f"Error reading PDF : {str(e)}")
+        print(f"error reading pdf : {e}")
+        return ""
 
 if __name__ == "__main__":
     pdf_path = "data/sample_pdfs/test.pdf"
