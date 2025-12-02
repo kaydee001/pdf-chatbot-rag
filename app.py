@@ -3,6 +3,7 @@ import os
 from src.qa_system import QASystem
 from dotenv import load_dotenv
 
+st.cache_resource.clear()
 load_dotenv()
 
 st.set_page_config(page_title="Document Q&A System", page_icon="📄")
@@ -24,17 +25,22 @@ if "qa_system" not in st.session_state:
 uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if uploaded_file and st.button("Process document"):
-    with st.spinner("Processing the document, this may take a minute ... "):
-        with open("temp.pdf", "wb") as f:
-            f.write(uploaded_file.getbuffer())
+    try:
+        with st.spinner("Processing the document, this may take a minute ... "):
+            with open("temp.pdf", "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-        api_key = os.getenv("GROQ_API_KEY")
-        st.session_state.qa_system = QASystem(api_key)
-        
-        st.session_state.qa_system.load_document("temp.pdf")
-        st.session_state.document_loaded = True
-        
-    st.success("Document loaded ✅")
+            api_key = os.getenv("GROQ_API_KEY")
+            st.session_state.qa_system = QASystem(api_key)
+            
+            st.session_state.qa_system.load_document("temp.pdf")
+            st.session_state.document_loaded = True
+            
+        st.success("Document loaded ✅")
+    
+    except Exception as e:
+        st.error(f"❌ Error processing the document : {str(e)}") 
+        st.session_state.document_loaded = False
 
 if st.session_state.document_loaded:
     
@@ -52,25 +58,29 @@ if st.session_state.document_loaded:
 
     question = st.text_input("Ask a question about the document : ", key="question_input")
 
-    if question:
-        with st.spinner("Thinking ... "):
-            result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
-    
-        st.session_state.chat_history.append(
-            {
-                "role": "user", 
-                "content": question
-             }
-        )
-        st.session_state.chat_history.append(
-            {
-                "role": "assistant", 
-                "content": result["answer"], 
-                "sources": result["sources"]
-             }
-        )
+    if question and question != st.session_state.get("last_question", ""):
+        try:
+            with st.spinner("Thinking ... "):
+                result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
+        
+            st.session_state.chat_history.append(
+                {
+                    "role": "user", 
+                    "content": question
+                }
+            )
+            st.session_state.chat_history.append(
+                {
+                    "role": "assistant", 
+                    "content": result["answer"], 
+                    "sources": result["sources"]
+                }
+            )
 
-        st.rerun()
+            st.session_state.last_question = question
+        
+        except Exception as e:
+            st.error(f"❌ Error getting answer : {str(e)}")
 
 else:
     st.info("Please upload and process a document first")

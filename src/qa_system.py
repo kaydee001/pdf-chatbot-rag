@@ -39,12 +39,13 @@ class QASystem:
         )
 
         for msg in chat_history:
-            messages.append(
-                {
-                    "role": msg["role"], 
-                    "context": msg["content"]
-                }
-            )
+            if msg["role"] in ["user", "assistant"]:
+                messages.append(
+                    {
+                        "role": msg["role"], 
+                        "content": msg["content"]
+                    }
+                )
 
         messages.append(
             {
