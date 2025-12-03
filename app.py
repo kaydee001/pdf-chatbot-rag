@@ -60,36 +60,41 @@ if uploaded_file and st.button("Process document"):
 if st.session_state.document_loaded:    
     for message in st.session_state.chat_history:
         if message["role"] == "user":
-            st.write(f"You : {message["content"]}")
+            with st.chat_message("user"):
+                st.write(message["content"])
         else:
-            st.write(f"Bot : {message["content"]}")
-            if "sources" in message:
-                with st.expander("Sources"):
-                    for i, source in enumerate(message["sources"], 1):
-                        st.write(f"Source {i}")
-                        st.write(source)
+            with st.chat_message("assistant"):
+                st.write(message["content"])
+                if "sources" in message:
+                    with st.expander("📄 View Sources"):
+                        for i, source in enumerate(message["sources"], 1):
+                            st.write(f"Source {i}")
+                            st.write(source[:300] + "..." if len(source) > 300 else source)
         st.write("---")
 
     question = st.chat_input("Ask a question about the document")
 
-    if question and question != st.session_state.get("last_question", ""):
-        with st.spinner("Thinking ... "):
-            result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
-    
-        st.session_state.chat_history.append(
-            {
-                "role": "user", 
-                "content": question
-             }
-        )
-        st.session_state.chat_history.append(
-            {
-                "role": "assistant", 
-                "content": result["answer"], 
-                "sources": result["sources"]
-             }
-        )
-        st.session_state.last_question = question
+    if question:
+        try:
+            with st.spinner("Thinking ... "):
+                result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
+        
+            st.session_state.chat_history.append(
+                {
+                    "role": "user", 
+                    "content": question
+                }
+            )
+            st.session_state.chat_history.append(
+                {
+                    "role": "assistant", 
+                    "content": result["answer"], 
+                    "sources": result["sources"]
+                }
+            )            
+            st.rerun()
 
+        except Exception as e:
+            st.error(f"❌ Error getting answer : {str(e)}")
 else:
     st.info("Please upload and process a document first")
