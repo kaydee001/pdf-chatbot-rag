@@ -10,6 +10,18 @@ st.set_page_config(page_title="Document Q&A System", page_icon="📄")
 st.title("Document Q&A System")
 st.write("Upload a PDF to ask questions about it")
 
+with st.sidebar:
+    st.header("Options")
+
+    if st.session_state.get("document_loaded", False):
+        st.info(f"Current document : {st.session_state.get("document_name", "Unknown")}")
+
+        if st.button("Clear conversations"):
+            st.session_state.chat_history = []
+            st.session_state.last_question = ""
+            st.success("Conversation cleared")
+            st.rerun()
+
 with st.expander("Example questions : "):
     st.write("- What is the document about?")
     st.write("- What are the main findings?")
@@ -24,20 +36,28 @@ if "qa_system" not in st.session_state:
 uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
 if uploaded_file and st.button("Process document"):
-    with st.spinner("Processing the document, this may take a minute ... "):
-        with open("temp.pdf", "wb") as f:
-            f.write(uploaded_file.getbuffer())
+    try:
+        with st.spinner("Processing the document, this may take a minute ... "):
+            with open("temp.pdf", "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-        api_key = os.getenv("GROQ_API_KEY")
-        st.session_state.qa_system = QASystem(api_key)
-        
-        st.session_state.qa_system.load_document("temp.pdf")
-        st.session_state.document_loaded = True
-        
-    st.success("Document loaded ✅")
+            api_key = os.getenv("GROQ_API_KEY")
+            st.session_state.qa_system = QASystem(api_key)
 
-if st.session_state.document_loaded:
+            st.session_state.chat_history = []
+            st.session_state.document_name = uploaded_file.name
+            
+            st.session_state.qa_system.load_document("temp.pdf")
+            st.session_state.document_loaded = True
     
+        st.success(f"Document loaded ✅ : {uploaded_file.name}")
+
+    except Exception as e:
+        st.error(f"❌ Error processing doc : {str(e)}")
+        st.info("Pls make sure to upload a valid PDF file")
+        st.session_state.document_loaded = False
+
+if st.session_state.document_loaded:    
     for message in st.session_state.chat_history:
         if message["role"] == "user":
             st.write(f"You : {message["content"]}")
@@ -50,9 +70,9 @@ if st.session_state.document_loaded:
                         st.write(source)
         st.write("---")
 
-    question = st.text_input("Ask a question about the document : ", key="question_input")
+    question = st.chat_input("Ask a question about the document")
 
-    if question:
+    if question and question != st.session_state.get("last_question", ""):
         with st.spinner("Thinking ... "):
             result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
     
@@ -69,8 +89,7 @@ if st.session_state.document_loaded:
                 "sources": result["sources"]
              }
         )
-
-        st.rerun()
+        st.session_state.last_question = question
 
 else:
     st.info("Please upload and process a document first")

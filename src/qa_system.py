@@ -14,7 +14,7 @@ class QASystem:
 
     def load_document(self, pdf_path):
         text = load_pdf(pdf_path)
-        chunks = chunk_text(text, chunk_size=1000, overlap=200)
+        chunks = chunk_text(text, chunk_size=1500, overlap=200)
         self.vector_store.add_texts(chunks)
         # print(f"document loaded : {len(chunks)} chunks stored")
 
@@ -42,7 +42,7 @@ class QASystem:
             messages.append(
                 {
                     "role": msg["role"], 
-                    "context": msg["content"]
+                    "content": msg["content"]
                 }
             )
 
