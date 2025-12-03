@@ -3,7 +3,7 @@ import faiss
 import numpy as np
 
 class VectorStore:
-    def __init__(self, model_name = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name = "paraphrase-MiniLM-L3-v2"):
         self.model = SentenceTransformer(model_name)
         self.dimension = 384
         self.index = faiss.IndexFlatL2(self.dimension)
@@ -13,7 +13,7 @@ class VectorStore:
         self.texts = texts
         self.index = faiss.IndexFlatL2(self.dimension)
 
-        embeddings = self.model.encode(texts)
+        embeddings = self.model.encode(texts, batch_size=32)
         embeddings = np.array(embeddings).astype("float32")
 
         self.index.add(embeddings)
