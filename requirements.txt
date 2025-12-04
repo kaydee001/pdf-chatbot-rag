@@ -1,7 +1,8 @@
-pypdf2
+PyPDF2
 langchain
 langchain-community
 faiss-cpu
 streamlit
 python-dotenv
 groq
+sentence-transformers
