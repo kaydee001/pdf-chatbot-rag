@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from src.qa_system import QASystem
 from dotenv import load_dotenv
-
+ 
 load_dotenv()
 
 st.set_page_config(page_title="Document Q&A System", page_icon="📄")
@@ -28,7 +28,11 @@ with st.expander("Example questions : "):
     st.write("- Summarize the key points")
 
 if "qa_system" not in st.session_state:
-    api_key = os.getenv("GROQ_API_KEY")
+    try:
+        api_key = st.secrets("GROQ_API_KEY")
+    except:
+        api_key = os.getenv("GROQ_API_KEY")
+
     st.session_state.qa_system = QASystem(api_key)
     st.session_state.document_loaded = False
     st.session_state.chat_history = []
