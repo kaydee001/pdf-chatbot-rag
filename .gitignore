@@ -210,3 +210,6 @@ __marimo__/
 
 # Temp PDF
 temp.pdf
+
+# Streamlit
+.streamlit/
