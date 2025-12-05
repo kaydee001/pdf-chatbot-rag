@@ -3,7 +3,9 @@ from PyPDF2 import PdfReader
 def load_pdf(file_path):
     all_text = ""
     try:
+        # pdf reader object
         pdf = PdfReader(file_path)
+        # extracting text from each page
         for page in pdf.pages:
             page_text = page.extract_text()
             all_text += page_text
