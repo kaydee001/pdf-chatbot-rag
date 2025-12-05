@@ -1,13 +1,19 @@
 def find_split_point(text, ideal_position, search_range=100):
+    # search window around ideal position
     start = max(0, ideal_position - search_range)
     end = min(len(text), ideal_position + search_range)
 
+    # extracting the segment to search
     segment = text[start:end]
-    last_period = segment.rfind(". ")
+
+    # find last period in this segment
+    last_period = segment.rfind(". ") # reverse find
     
-    if last_period != -1:
+    if last_period != -1: # period found
+        # position after period -> start + offset + 2 for ". "
         return start+last_period+2
     else:
+        # no period found
         return ideal_position
 
 def chunk_text(text, chunk_size=1000, overlap=200):
@@ -15,10 +21,12 @@ def chunk_text(text, chunk_size=1000, overlap=200):
     start = 0
 
     while start < len(text):
-        # end = start + chunk_size
+        # smart split point at sentence boundary (if possible)
         end = find_split_point(text, start + chunk_size)
+        #extracting chunks
         chunk = text[start:end]
         chunks.append(chunk)
+        # move start forward -> step size = chunk_size - overlap
         start = start + (chunk_size-overlap)
 
     return chunks
