@@ -23,9 +23,12 @@ class DocumentProcessor:
             return None
 
     def _clean_text(self, text: str) -> str:
-        cleaned_text = text.strip()
+        text = " ".join(text.split())
+        lines = text.split("\n")
+        clean_lines = [line.strip() for line in lines if line.strip()]
+        text = "\n".join(clean_lines)
 
-        return cleaned_text
+        return text
 
 
 if __name__ == "__main__":
