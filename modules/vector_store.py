@@ -33,35 +33,3 @@ class VectorStore:
     def reset(self):
         self.index = faiss.IndexFlatL2(self.dimension)
         self.texts = []
-
-
-if __name__ == "__main__":
-    from modules.embedding_manager import EmbeddingManager
-
-    embedding_manager = EmbeddingManager()
-    vector_store = VectorStore()
-
-    texts = [
-        "Python is great for machine learning",
-        "Neural networks can learn complex patterns",
-        "I love pizza and pasta",
-        "Deep learning requires lots of data",
-        "The weather is nice today"
-    ]
-
-    print("creating embeddings : ")
-    embeddings = embedding_manager.encode_batch(texts)
-
-    print("adding to vector store : ")
-    vector_store.add_vectors(embeddings, texts)
-
-    query = "What is good for AI?"
-    print(f"query : '{query}'")
-    query_embedding = embedding_manager.encode_text(query)
-
-    distances, indices = vector_store.search(query_embedding, k=3)
-    results = vector_store.get_texts(indices[0])
-
-    print(f"top 3 results : ")
-    for i, (text, distance) in enumerate(zip(results, distances[0]), 1):
-        print(f"{i}. {text} (distance : {distance:.4f})")

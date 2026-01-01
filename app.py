@@ -1,12 +1,12 @@
+from dotenv import load_dotenv
+from modules.qa_system import QASystem
+import streamlit as st
 import sys
 import os
 # adding project root to python path
 sys.path.insert(0, os.path.dirname(__file__))
 
-import streamlit as st
-from src.qa_system import QASystem
-from dotenv import load_dotenv
- 
+
 # loading environment variables
 load_dotenv()
 
@@ -21,11 +21,12 @@ st.write("Upload a PDF to ask questions about it")
 with st.sidebar:
     st.header("Options")
 
-    # show current document info; if loaded 
+    # show current document info; if loaded
     if st.session_state.get("document_loaded", False):
-        st.info(f"Current document : {st.session_state.get("document_name", "Unknown")}")
+        st.info(
+            f"Current document : {st.session_state.get("document_name", "Unknown")}")
 
-        # clear conversation 
+        # clear conversation
         if st.button("Clear conversations"):
             st.session_state.chat_history = []
             st.session_state.last_question = ""
@@ -69,11 +70,11 @@ if uploaded_file and st.button("Process document"):
             # creating fresh qa system -> clears previous document
             st.session_state.chat_history = []
             st.session_state.document_name = uploaded_file.name
-            
+
             # processing doc (extract -> chunks -> embed -> store)
             st.session_state.qa_system.load_document("temp.pdf")
             st.session_state.document_loaded = True
-    
+
         st.success(f"Document loaded ✅ : {uploaded_file.name}")
 
     except Exception as e:
@@ -99,9 +100,10 @@ if st.session_state.document_loaded:
                         for i, source in enumerate(message["sources"], 1):
                             st.write(f"Source {i}")
                             # truncate long sentences
-                            st.write(source[:300] + "..." if len(source) > 300 else source)
+                            st.write(
+                                source[:300] + "..." if len(source) > 300 else source)
         st.write("---")
-    
+
     # question input
     # st.chat_input auto clears after submit
     question = st.chat_input("Ask a question about the document")
@@ -109,25 +111,25 @@ if st.session_state.document_loaded:
     if question:
         try:
             with st.spinner("Thinking ... "):
-                # get result + conversation history from qa system 
-                result = st.session_state.qa_system.ask(question, chat_history=st.session_state.chat_history)
+                # get result + conversation history from qa system
+                result = st.session_state.qa_system.ask(
+                    question, chat_history=st.session_state.chat_history)
 
             # add user question to history
             st.session_state.chat_history.append(
                 {
-                    "role": "user", 
+                    "role": "user",
                     "content": question
                 }
             )
             # add assistant answer to history
             st.session_state.chat_history.append(
                 {
-                    "role": "assistant", 
-                    "content": result["answer"], 
-                    "sources": result["sources"]
+                    "role": "assistant",
+                    "content": result["answer"]
                 }
-            )     
-            # force rerun to display new messages       
+            )
+            # force rerun to display new messages
             st.rerun()
 
         except Exception as e:

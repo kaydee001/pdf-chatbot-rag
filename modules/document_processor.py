@@ -29,14 +29,3 @@ class DocumentProcessor:
         text = "\n".join(clean_lines)
 
         return text
-
-
-if __name__ == "__main__":
-    processor = DocumentProcessor()
-    text = processor.load_pdf("data/sample_pdfs/test.pdf")
-
-    if text:
-        print(f"Extracted {len(text)} characters")
-        print(f"First 200 words : {text[:200]}")
-    else:
-        print("Failed to load PDF")
