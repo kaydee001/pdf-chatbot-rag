@@ -24,32 +24,3 @@ class LLMService:
 
         answer = response.choices[0].message.content
         return answer
-
-
-if __name__ == "__main__":
-    import os
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    api_key = os.getenv("GROQ_API_KEY")
-
-    if not api_key:
-        print("❌ GROQ_API_KEY not found in .env")
-        exit(1)
-
-    llm_service = LLMService(api_key)
-
-    context_chunks = [
-        "The attention mechanism allows neural networks to focus on relevant parts of the input.",
-        "Self-attention computes relationships between all positions in a sequence.",
-        "Multi-head attention uses multiple attention layers in parallel."
-    ]
-
-    question = "What is attention mechanism?"
-
-    print(f"🔍 Question: {question}\n")
-    print("📝 Generating answer...\n")
-
-    answer = llm_service.generate_answer(question, context_chunks)
-
-    print(f"✅ Answer:\n{answer}")

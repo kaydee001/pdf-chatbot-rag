@@ -16,22 +16,3 @@ class EmbeddingManager:
     def encode_batch(self, texts: List[str]) -> np.ndarray:
         embeddings = self.model.encode(texts, batch_size=EMBEDDING_BATCH_SIZE)
         return np.array(embeddings).astype("float32")
-
-
-if __name__ == "__main__":
-
-    manager = EmbeddingManager()
-    text = "Machine learning is amazing"
-    embedding = manager.encode_text(text)
-    print(f"✅ Single text embedding shape: {embedding.shape}")
-    print(f"✅ First 10 values: {embedding[:10]}")
-
-    texts = [
-        "Python is great for AI",
-        "Neural networks learn patterns",
-        "Deep learning uses layers"
-    ]
-
-    embeddings = manager.encode_batch(texts)
-    print(f"\n✅ Batch embeddings shape: {embeddings.shape}")
-    print(f"✅ Should be (3, 384): {embeddings.shape == (3, 384)}")

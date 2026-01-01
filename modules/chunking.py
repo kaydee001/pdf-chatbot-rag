@@ -40,20 +40,3 @@ class TextChunker:
             return start+last_period+2
 
         return position
-
-
-if __name__ == "__main__":
-    from modules.document_processor import DocumentProcessor
-
-    processor = DocumentProcessor()
-    text = processor.load_pdf("data/sample_pdfs/test.pdf")
-
-    if text:
-        chunker = TextChunker()
-        chunks = chunker.chunk_text(text)
-
-        print(f"✅ Original text: {len(text)} characters")
-        print(f"✅ Created {len(chunks)} chunks")
-        print(f"✅ First chunk: {len(chunks[0])} chars")
-        print(f"✅ Last chunk: {len(chunks[-1])} chars")
-        print(f"\nFirst chunk preview:\n{chunks[0][:200]}...")
