@@ -56,7 +56,7 @@ if "qa_system" not in st.session_state:
 uploaded_file = st.file_uploader("Upload PDF", type=["pdf"])
 
 # document processing
-if uploaded_file and st.button("Process document"):
+if uploaded_file and not st.session_state.get("document_loaded", False):
     try:
         with st.spinner("Processing the document, this may take a minute ... "):
             # save uploaded file to temp location
@@ -79,7 +79,6 @@ if uploaded_file and st.button("Process document"):
 
     except Exception as e:
         st.error(f"❌ Error processing doc : {str(e)}")
-        st.info("Pls make sure to upload a valid PDF file")
         st.session_state.document_loaded = False
 
 # chat interface
